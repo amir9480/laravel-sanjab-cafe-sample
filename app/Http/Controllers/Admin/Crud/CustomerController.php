@@ -87,7 +87,6 @@ class CustomerController extends CrudController
         if ($coin != 0) {
             $customer->{ $coin > 0 ? 'increment' : 'decrement' }('coin', abs($coin));
         }
-        debug($coinPoint);
         return ['customer' => $customer, 'message' => 'خرید با موفقیت انجام شد.'.($coinPoint > 0 ? "\nدست آورد سکه: $coinPoint" : '')];
     }
 

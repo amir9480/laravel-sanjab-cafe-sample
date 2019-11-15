@@ -124,6 +124,8 @@
                         self.$parent.$parent.$refs.table.refresh();
                     }
                     self.customer = response.data.customer;
+                    self.form.id = self.customer.id;
+                    self.form.mobile = self.customer.mobile;
                 }).catch(function (error) {
                     console.error(error);
                     self.loading = false;
