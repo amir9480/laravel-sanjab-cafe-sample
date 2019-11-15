@@ -16,6 +16,7 @@ return [
     'controllers' => [
         App\Http\Controllers\Admin\DashboardController::class,
         App\Http\Controllers\Admin\Crud\UserController::class,
+        App\Http\Controllers\Admin\Crud\CustomerController::class,
         App\Http\Controllers\Admin\Setting\PointSettingController::class,
     ],
 
