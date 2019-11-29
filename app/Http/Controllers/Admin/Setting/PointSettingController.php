@@ -8,8 +8,8 @@ use Illuminate\Validation\Validator;
 use Sanjab\Controllers\SettingController;
 use Sanjab\Helpers\SettingProperties;
 use Sanjab\Widgets\ItemListWidget;
+use Sanjab\Widgets\MoneyWidget;
 use Sanjab\Widgets\NumberWidget;
-use Sanjab\Widgets\TextWidget;
 
 class PointSettingController extends SettingController
 {
@@ -22,8 +22,8 @@ class PointSettingController extends SettingController
     protected function init(): void
     {
         $this->widgets[] = ItemListWidget::create('ranges', 'جدول امتیاز')
-                            ->addWidget(NumberWidget::create('min', 'حداقل')->required()->cols(4)->min(0))
-                            ->addWidget(NumberWidget::create('max', 'حداکثر')->required()->cols(4)->min(0))
+                            ->addWidget(MoneyWidget::create('min', 'حداقل')->postfix(" تومان ")->precision(0)->required()->cols(4)->min(0))
+                            ->addWidget(MoneyWidget::create('max', 'حداکثر')->postfix(" تومان ")->precision(0)->required()->cols(4)->min(0))
                             ->addWidget(NumberWidget::create('point', 'سکه')->required()->cols(4))
                             ->required();
     }

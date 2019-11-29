@@ -4,29 +4,65 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-require('./bootstrap');
+require("./bootstrap");
 
-window.Vue = require('vue');
+var secs = 4;
 
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
+$(document).ready(function() {
+    window.backgroundImages.forEach(function(img) {
+        new Image().src = img;
+        // caches images, avoiding white flash between background replacements
+    });
+    backgroundSequence();
 
-// const files = require.context('./', true, /\.vue$/i)
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
+    $("#point-form").submit(function (event) {
+        event.preventDefault();
+        $("#point-form button").prop("disabled", true);
+        $("#point-form button").text("درحال بارگذاری...");
 
-// Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+        var mobile = $("#mobile").val();
+        var code = $("#code").val();
+        axios.post('/get-info',{mobile, code})
+        .then(function (response) {
+            Swal.fire({
+                title: response.data.message,
+                type: "success",
+                confirmButtonText: 'تایید',
+            });
+            $("#code").val(response.data.id);
+        }).catch(function (error) {
+            console.error(error);
+            Swal.fire({
+                title: error.response.status == 422 ? error.response.data.errors[Object.keys(error.response.data.errors)[0]][0] : "خطایی رخ داد",
+                type: "error",
+                confirmButtonText: 'تایید',
+            });
+        }).then(function () {
+            $("#point-form button").prop("disabled", false);
+            $("#point-form button").text("بررسی");
+        });
+    });
 
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
-
-const app = new Vue({
-    el: '#app',
+    $("#code").keyup(() => $("#mobile").val(""));
+    $("#mobile").keyup(() => $("#code").val(""));
 });
+
+function backgroundSequence() {
+    window.clearTimeout();
+    var k = 0;
+    for (i = 0; i < window.backgroundImages.length; i++) {
+        setTimeout(function() {
+            document.getElementById("animated-bg").style.background =
+                "url(" + window.backgroundImages[k] + ") no-repeat center center";
+            document.getElementById("animated-bg").style.backgroundSize =
+                "cover";
+            if (k + 1 === window.backgroundImages.length) {
+                setTimeout(function() {
+                    backgroundSequence();
+                }, secs * 1000);
+            } else {
+                k++;
+            }
+        }, secs * 1000 * i);
+    }
+}

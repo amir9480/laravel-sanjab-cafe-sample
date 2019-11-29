@@ -11,6 +11,12 @@ const mix = require('laravel-mix');
  |
  */
 
+if (!mix.inProduction()) {
+    mix.sourceMaps();
+}
+
 mix.js('resources/js/app.js', 'public/js')
    .sass('resources/sass/app.scss', 'public/css')
-   .js('resources/js/sanjab.js', 'public/vendor/sanjab/js');
+   .js('resources/js/sanjab.js', 'public/vendor/sanjab/js')
+   .version();
+

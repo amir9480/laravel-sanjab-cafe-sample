@@ -18,7 +18,7 @@ class CreateCustomersTable extends Migration
             $table->bigIncrements('id');
             $table->string('mobile')->index()->unique();
             $table->unsignedInteger('coin')->default(0);
-            $table->unsignedInteger('point')->default(0);
+            $table->unsignedInteger('total_buy')->default(0);
             $table->timestamps();
         });
         DB::statement("ALTER TABLE customers AUTO_INCREMENT=101;");
