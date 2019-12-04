@@ -84,15 +84,7 @@ class CustomerController extends CrudController
             'coin.required_without' => 'فیلد نقد و سکه خالی است.',
         ]);
         $customer->transactions()->create(['money' => intval($request->input('price', 0)), 'coin' => intval($request->input('coin', 0))]);
-        $coinPoint = 0;
-        $pricePoint = intval($request->input('price'));
-        if ($pricePoint > 0) {
-            foreach (setting('point.ranges') as $value) {
-                if ($value['min'] <= $pricePoint && $value['max'] > $pricePoint) {
-                    $coinPoint = $value['point'];
-                }
-            }
-        }
+        $coinPoint = $this->getMoneyPoint(intval($request->input('price')));
         $coin = $coinPoint - intval($request->input('coin', 0));
         if ($coin != 0) {
             $customer->{ $coin > 0 ? 'increment' : 'decrement' }('coin', abs($coin));
@@ -120,6 +112,9 @@ class CustomerController extends CrudController
             return response()->json(['message' => 'شما اجازه حذف این تاریخچه را ندارید.'], 403);
         }
         $customer = $transaction->customer;
+        $customer->decrement('total_buy', $transaction->money);
+        $customer->decrement('coin', $this->getMoneyPoint($transaction->money));
+        $customer->increment('coin', $transaction->coin);
         $transaction->delete();
         $customer->refresh();
         $customer->loadTransactionInformations();
@@ -138,5 +133,18 @@ class CustomerController extends CrudController
             Route::delete('transactions/{transaction}', static::class.'@deleteTransaction')->name('transactions.delete');
             Route::post('buy/{customer}', static::class.'@buy')->name('buy');
         });
+    }
+
+    private function getMoneyPoint($pricePoint)
+    {
+        $coinPoint = 0;
+        if ($pricePoint > 0) {
+            foreach (setting('point.ranges') as $value) {
+                if ($value['min'] <= $pricePoint && $value['max'] > $pricePoint) {
+                    $coinPoint = $value['point'];
+                }
+            }
+        }
+        return $coinPoint;
     }
 }
