@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Crud;
 
+use App\Cart;
 use App\Customer;
 use App\Transaction;
 use App\Cards\CustomerCard;
@@ -151,6 +152,33 @@ class CustomerController extends CrudController
         ];
     }
 
+    /**
+     * Get customer active carts.
+     *
+     * @param Customer $customer
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function activeCarts(Customer $customer)
+    {
+        return $customer->carts()->where('seen', 0)->withTotal()->get()->map(function ($cart) {
+            $out = $cart->toArray();
+            $out['date'] = $cart->date_fa_ft;
+            return $out;
+        });
+    }
+
+    /**
+     * Change seen field of a cart to true.
+     *
+     * @param Transaction $transaction
+     * @return array
+     */
+    public function seenCart(Cart $cart)
+    {
+        $cart->update(['seen' => true]);
+        return ['success' => true,];
+    }
+
     public static function routes(): void
     {
         parent::routes();
@@ -159,6 +187,8 @@ class CustomerController extends CrudController
             Route::get('transactions/{customer}', static::class.'@transactions')->name('transactions');
             Route::delete('transactions/{transaction}', static::class.'@deleteTransaction')->name('transactions.delete');
             Route::post('buy/{customer}', static::class.'@buy')->name('buy');
+            Route::get('active-carts/{customer}', static::class.'@activeCarts')->name('active-carts');
+            Route::post('seen-cart/{cart}', static::class.'@seenCart')->name('seen-cart');
         });
     }
 

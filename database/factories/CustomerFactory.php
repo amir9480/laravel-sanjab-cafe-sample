@@ -8,8 +8,8 @@ use Faker\Generator as Faker;
 
 $factory->define(Customer::class, function (Faker $faker) {
     return [
-        'mobile' => $faker->iranMobile,
-        'coin' => $faker->numberBetween(0, 20),
+        'mobile'    => $faker->iranMobile,
+        'coin'      => $faker->numberBetween(0, 20),
         'total_buy' => $faker->numberBetween(0, 1000) * 1000,
     ];
 });

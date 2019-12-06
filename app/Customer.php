@@ -2,8 +2,8 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Customer extends Model
 {
@@ -23,13 +23,23 @@ class Customer extends Model
     /* -------------------------------- Relations ------------------------------- */
 
     /**
-     * Transactions of customer
+     * Transactions of customer.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function transactions()
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    /**
+     * Carts of customer.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function carts()
+    {
+        return $this->hasMany(Cart::class);
     }
 
     /* -------------------------------- Mutators -------------------------------- */

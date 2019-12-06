@@ -107,6 +107,47 @@
                         </div>
                     </b-col>
                 </b-row>
+                <div class="strike">
+                    <span>سفارش های فعال</span>
+                </div>
+                <b-table
+                    ref="cartsTable"
+                    :items="carts"
+                    :fields="cartFields"
+                    striped
+                    hover
+                    responsive
+                    show-empty
+                >
+                    <template #table-busy>
+                        <div class="text-center text-danger my-2">
+                            <b-spinner variant="default" class="align-middle"/>
+                        </div>
+                    </template>
+                    <template #empty>
+                        <center>سفارشی وجود ندارد.</center>
+                    </template>
+                    <template #cell(actions)="row">
+                        <b-button-group>
+                            <b-button @click="openCartDetails(row.item)" variant="primary" size="sm" title="مشاهده" v-b-tooltip>
+                                <i class="material-icons">remove_red_eye</i>
+                            </b-button>
+                            <b-button @click="seenCart(row.item, true)" variant="success" size="sm" title="پرداخت" v-b-tooltip>
+                                <i class="material-icons">money_off</i>
+                            </b-button>
+                            <b-button @click="seenCart(row.item, false)" variant="warning" size="sm" title="بررسی شد" v-b-tooltip>
+                                <i class="material-icons">check</i>
+                            </b-button>
+                        </b-button-group>
+                    </template>
+                    <template #cell(total)="row">
+                        {{ numberFormat(row.item.total) }}
+                    </template>
+                </b-table>
+
+                <div class="strike">
+                    <span>سابقه خرید</span>
+                </div>
                 <b-table
                     ref="transactionsTable"
                     :items="transactions"
@@ -146,6 +187,9 @@
                 />
             </b-card>
         </b-col>
+        <b-modal ref="cartModal" title="لیست خرید" size="lg" @hidden="currentCart = null" hide-footer>
+            <cart-products v-if="currentCart" :item="this.currentCart" />
+        </b-modal>
     </b-row>
 </template>
 
@@ -169,6 +213,12 @@
                     {key: 'date', label: 'تاریخ', sortable: false},
                     {key: 'delete', label: 'حذف', sortable: false},
                 ],
+                cartFields: [
+                    {key: 'date', label: 'تاریخ', sortable: false},
+                    {key: 'total', label: 'مجموع', sortable: false},
+                    {key: 'actions', label: 'عملیات', sortable: false},
+                ],
+                currentCart: false,
             }
         },
         methods: {
@@ -212,7 +262,7 @@
             onBuyFormSubmit() {
                 var self = this;
                 self.loading = true;
-                axios.post(sanjabUrl('/modules/customers/buy/' + self.customer.id), self.form)
+                return axios.post(sanjabUrl('/modules/customers/buy/' + self.customer.id), self.form)
                 .then(function (response) {
                     self.loading = false;
                     self.form.price = 0;
@@ -237,8 +287,6 @@
             },
             transactions(info) {
                 info.page = info.currentPage;
-                info.searchTypes = this.searchTypes;
-                info.search = this.search;
                 var self = this;
                 return axios.get(sanjabUrl("/modules/customers/transactions/" + self.customer.id), {
                     params: info,
@@ -281,10 +329,60 @@
                             self.$refs.transactionsTable.refresh();
                         }
                         self.$parent.$parent.$refs.table.refresh();
-                        console.log(result.value.customer);
                         self.customer = result.value.customer;
                     }
                 })
+            },
+            carts() {
+                var self = this;
+                return axios.get(sanjabUrl("/modules/customers/active-carts/" + self.customer.id))
+                .then(function (response) {
+                    return response.data;
+                })
+                .catch(function (error) {
+                    console.error(error);
+                    sanjabError(sanjabTrans('some_error_happend'));
+                });
+            },
+            seenCart(cart, pay = false) {
+                var self = this;
+                Swal.fire({
+                    title: "آیا برای " + (pay ? 'پرداخت' : 'بررسی') + " این خرید مطمئن هستید؟",
+                    showCancelButton: true,
+                    showLoaderOnConfirm: true,
+                    confirmButtonText: "بله",
+                    cancelButtonText: "خیر",
+                    preConfirm: (input) => {
+                        return axios.post(sanjabUrl("/modules/customers/seen-cart/" + cart.id))
+                            .then(function (response) {
+                                return response.data;
+                            }).catch((error) => {
+                                Swal.showValidationMessage(error.response.data.message ? error.response.data.message : sanjabHttpErrorMessage(error.response.status));
+                            });
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                }).then(function (result) {
+                    if (result.value) {
+                        if (pay) {
+                            self.form.price = cart.total;
+                            self.form.coin = 0;
+                            self.onBuyFormSubmit();
+                        } else {
+                            Swal.fire({
+                                type: 'success',
+                                title: result.value.message ? result.value.message : sanjabTrans('success'),
+                                confirmButtonText: "تایید",
+                            });
+                        }
+                        if (self.$refs.cartsTable) {
+                            self.$refs.cartsTable.refresh();
+                        }
+                    }
+                });
+            },
+            openCartDetails(cart) {
+                this.currentCart = cart;
+                this.$refs.cartModal.show();
             }
         },
     }

@@ -20,4 +20,16 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    /**
+     * Carts that contain this product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function carts()
+    {
+        return $this->belongsToMany(Cart::class)
+                    ->withPivot('quantity')
+                    ->using(CartProduct::class);
+    }
 }
