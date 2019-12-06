@@ -13,7 +13,7 @@ class Cart extends Model
     protected $fillable = ['seen', 'customer_id', 'date'];
     protected $casts = [
         'seen' => 'bool',
-        'date' => 'date',
+        'date' => 'datetime',
     ];
 
     /* -------------------------------- Relations ------------------------------- */
@@ -56,4 +56,14 @@ class Cart extends Model
                 ->groupBy('carts.id');
     }
 
+    /**
+     * Query only recent carts that not expired.
+     *
+     * @param Builder $query
+     * @return Builder
+     */
+    public function scopeRecent(Builder $query)
+    {
+        $query->with('products')->where('date', '>=', now()->subMinutes(10));
+    }
 }

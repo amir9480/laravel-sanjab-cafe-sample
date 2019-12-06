@@ -13,3 +13,4 @@
 
 Route::get('/', 'HomeController@show');
 Route::post('/get-info', 'HomeController@getInfo')->middleware('throttle:10,1');
+Route::post('/buy', 'HomeController@buy')->middleware('throttle:10,1');

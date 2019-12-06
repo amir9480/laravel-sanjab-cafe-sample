@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,23 +19,7 @@
     <div id="animated-bg">
         <h1>{{ config('app.name') }}</h1>
         <div class="container h-100">
-            <div class="row h-100 justify-content-center align-items-center">
-                <form id="point-form" class="col-12">
-                    <div class="row">
-                        <div class="col-lg-5 col-12 form-group">
-                            <input type="number" class="form-control" id="code" placeholder="کد عضویت">
-                        </div>
-                        <div class="col-lg-2 col-12 text-center">
-                            <span>یا</span>
-                        </div>
-                        <div class="col-lg-5 col-12 form-group">
-                            <input type="tel" class="form-control" id="mobile" placeholder="شماره همراه">
-                        </div>
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-block btn-outline-secondary">بررسی</button>
-                        </div>
-                    </div>
-                </form>
+            <div id="app">
             </div>
         </div>
         <footer>

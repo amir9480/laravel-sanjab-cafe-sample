@@ -1,4 +1,6 @@
 @import "~bootstrap/scss/bootstrap";
+@import '~vue-select/dist/vue-select.css';
+@import '~bootstrap-vue/dist/bootstrap-vue.css';
 @import '~shabnam-font/dist/font-face.css';
 
 * {
@@ -19,6 +21,15 @@ input::-webkit-inner-spin-button {
 
 input[type=number] {
     -moz-appearance:textfield;
+}
+
+
+html[dir="rtl"] .modal-header .close {
+    margin: -15px auto -15px -15px;
+}
+
+html[dir="rtl"] .modal-footer > :not(:first-child) {
+    margin-right: .25rem;
 }
 
 #animated-bg {
