@@ -20,6 +20,8 @@ class Customer extends Model
         'date'
     ];
 
+    /* -------------------------------- Relations ------------------------------- */
+
     /**
      * Transactions of customer
      *
@@ -30,6 +32,8 @@ class Customer extends Model
         return $this->hasMany(Transaction::class);
     }
 
+    /* -------------------------------- Mutators -------------------------------- */
+
     /**
      * Get created_at in jalali format
      *
@@ -39,6 +43,8 @@ class Customer extends Model
     {
         return $this->created_at_fa_f;
     }
+
+    /* -------------------------------- Functions ------------------------------- */
 
     /**
      * Load Transactions informations

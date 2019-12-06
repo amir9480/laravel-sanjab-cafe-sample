@@ -17,6 +17,8 @@ class Transaction extends Model
         'date'
     ];
 
+    /* -------------------------------- Relations ------------------------------- */
+
     /**
      * Customer done this transaction
      *
@@ -26,6 +28,8 @@ class Transaction extends Model
     {
         return $this->belongsTo(Customer::class);
     }
+
+    /* -------------------------------- Mutators -------------------------------- */
 
     /**
      * Get created_at in jalali format

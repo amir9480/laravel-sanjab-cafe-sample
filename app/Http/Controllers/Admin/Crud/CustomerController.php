@@ -26,7 +26,7 @@ class CustomerController extends CrudController
                 ->model(\App\Customer::class)
                 ->title("مشتری")
                 ->titles("مشتریان")
-                ->icon(MaterialIcons::ATTACH_MONEY)
+                ->icon(MaterialIcons::PEOPLE)
                 ->creatable(false)
                 ->editable(false);
     }
@@ -48,25 +48,39 @@ class CustomerController extends CrudController
                             ->postfix("");
     }
 
+    /**
+     * Find or create customer.
+     *
+     * @param Request $request
+     * @return array
+     */
     public function search(Request $request)
     {
-        $customer = Customer::where('mobile', $request->input('mobile'))
+        $query = Customer::where('mobile', $request->input('mobile'))
                         ->orWhere('id', $request->input('id'))
                         ->withCount(['transactions', 'transactions as last_month_transactions_count' => function (Builder $query) {
                             $query->where('created_at', '>', now()->subDays(30));
-                        }])
-                        ->first();
+                        }]);
+        $customer = $query->first();
         if ($customer == null) {
             if ($request->filled('id')) {
                 throw ValidationException::withMessages(['id' => 'مشتری با شماره عضویت '.$request->input('id').' یافت نشد.']);
             }
             $request->validate(['mobile' => 'required|iran_mobile']);
             $customer = Customer::create($request->only('mobile'));
+            $customer = $query->first();
             return ['newCreated' => true, 'customer' => $customer];
         }
         return ['customer' => $customer];
     }
 
+    /**
+     * Submit a buy for customer.
+     *
+     * @param Request $request
+     * @param Customer $customer
+     * @return array
+     */
     public function buy(Request $request, Customer $customer)
     {
         $customer->loadTransactionInformations();
@@ -97,6 +111,12 @@ class CustomerController extends CrudController
         ];
     }
 
+    /**
+     * Get transactions of a customer.
+     *
+     * @param Customer $customer
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
     public function transactions(Customer $customer)
     {
         $transactions = $customer->transactions()->latest()->paginate(10);
@@ -106,15 +126,22 @@ class CustomerController extends CrudController
         return $transactions;
     }
 
+    /**
+     * Delete a wrong transaction.
+     *
+     * @param Transaction $transaction
+     * @return array
+     */
     public function deleteTransaction(Transaction $transaction)
     {
         if ($transaction->created_at <= now()->subHour()) {
             return response()->json(['message' => 'شما اجازه حذف این تاریخچه را ندارید.'], 403);
         }
         $customer = $transaction->customer;
-        $customer->decrement('total_buy', $transaction->money);
-        $customer->decrement('coin', $this->getMoneyPoint($transaction->money));
-        $customer->increment('coin', $transaction->coin);
+        $customer->total_buy = max($customer->total_buy - $transaction->money, 0);
+        $customer->coin -= $this->getMoneyPoint($transaction->money);
+        $customer->coin = max($customer->coin + $transaction->coin, 0);
+        $customer->save();
         $transaction->delete();
         $customer->refresh();
         $customer->loadTransactionInformations();
@@ -135,6 +162,12 @@ class CustomerController extends CrudController
         });
     }
 
+    /**
+     * Get point of buy.
+     *
+     * @param int $pricePoint
+     * @return int
+     */
     private function getMoneyPoint($pricePoint)
     {
         $coinPoint = 0;

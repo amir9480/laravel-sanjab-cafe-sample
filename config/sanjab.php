@@ -15,8 +15,10 @@ return [
      */
     'controllers' => [
         App\Http\Controllers\Admin\DashboardController::class,
-        App\Http\Controllers\Admin\Crud\UserController::class,
         App\Http\Controllers\Admin\Crud\CustomerController::class,
+        App\Http\Controllers\Admin\Crud\CategoryController::class,
+        App\Http\Controllers\Admin\Crud\ProductController::class,
+        App\Http\Controllers\Admin\Crud\UserController::class,
         App\Http\Controllers\Admin\Setting\PointSettingController::class,
         App\Http\Controllers\Admin\Setting\HomeSettingController::class,
     ],

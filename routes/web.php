@@ -12,4 +12,4 @@
 */
 
 Route::get('/', 'HomeController@show');
-Route::post('/get-info', 'HomeController@getInfo');
+Route::post('/get-info', 'HomeController@getInfo')->middleware('throttle:10,1');
