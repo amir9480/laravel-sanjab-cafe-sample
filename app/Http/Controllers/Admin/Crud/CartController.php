@@ -48,6 +48,7 @@ class CartController extends CrudController
                 ->authorize(function ($item) {
                     return true;
                 })
+                ->icon(MaterialIcons::LIST)
                 ->modalSize("lg")
                 ->variant("primary")
         );
