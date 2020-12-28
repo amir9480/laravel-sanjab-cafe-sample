@@ -1,7 +1,11 @@
 <?php
 
+namespace Database\Seeders;
+
 use App\User;
+use Bouncer;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 use Silber\Bouncer\Database\Role;
 
 class UsersTableSeeder extends Seeder
